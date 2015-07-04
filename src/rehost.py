@@ -1,4 +1,4 @@
-import requests
+import requests as r
 import json
 import credentials
 
