@@ -14,3 +14,11 @@ def rehost(media_url):
         return p_info['files'][1]['url'].encode('utf-8')
     else:
         return "error"
+
+def delete_rehost(hashcode):
+    r2 = r.delete('https://imgrush.com/api/%s' % hashcode)
+    j = json.loads(r2.text)
+    if j['status'] == 'success':
+        return "deleted"
+    else:
+        return "not deleted"
