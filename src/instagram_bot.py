@@ -1,11 +1,7 @@
 import credentials
 import praw
 import sqlite3
-import pprint
 import re
-import requests
-import json
-from datetime import datetime
 import time
 import get_media_id
 import rehost
