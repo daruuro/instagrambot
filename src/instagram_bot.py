@@ -52,6 +52,7 @@ while True:
                 caption = escape.escape_chars(this_media.caption.text.encode('utf-8')) if this_media.caption.text != None else ""
                 media_url = this_media.images['standard_resolution'].url.encode('utf-8') if media_type == "Image" else this_media.videos['standard_resolution'].url.encode('utf-8')
                 rehosted_url = rehost.rehost(media_url)
+
                 try:
                     curs.execute("INSERT INTO reddit (ID, TIMESTAMP) VALUES (?, CURRENT_TIMESTAMP)",(str(submission.id),))
                     logging.debug("Succesfully added submission " + str(submission.id) + " to the database")
@@ -60,12 +61,14 @@ while True:
                 except sqlite3.Error as e:
                     logging.critical("Unable to add submission: " + str(submission.id) + " to the database because of : " + str(e))
                     continue
+
                 try:
                     submission.add_comment(formatted_comment % (author_full_name, author_name, author_url, post_url, post_date, caption, media_url, rehosted_url))
                     logging.debug("Successfully submitted comment for submission: " + str(submission.id))
                 except praw.errors.APIException as e:
                     logging.critical("Comment submission for "+ str(submission.id) + " not processed because " + str(e))
                     continue
+
                 logging.info("Succesfully processed and posted comment at " + "http://www.reddit.com/" + str(submission.id))
             except ValueError as e:
                 logging.critical("Not proccessed because of this error: " + str(e) + ". Line number: " + str(sys.exc_info()[-1].tb_lineno))
