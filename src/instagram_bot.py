@@ -25,9 +25,43 @@ api = InstagramAPI(client_secret=credentials.credentials["CLIENT_SECRET"], acces
 
 
 while True:
+    unread = r.get_unread(limit=None)
+
+    for message in unread:
+        if re.search(r'\+delete\s', message.body.lower()):
+            try:
+                the_id = re.findall(r'\+delete\s(.*?)$', message.body.lower())[0]
+                logging.debug("The comment id is " + the_id)
+                the_id = 't1_' + the_id
+                comment = r.get_info(thing_id=the_id)
+                comment_parent = r.get_info(thing_id=comment.parent_id)
+
+                if message.author.name == comment_parent.author.name or message.author.name == 'drogbafan':
+                    hashcode = re.findall(r'imgrush\.com\/(\S*?)\.(?:mp4|jpe)', comment.body)[0]
+                    logging.debug("The hashcode id is " + hashcode)
+                    
+                    comment.edit("Edited and deleted this comment")
+                    comment.delete()
+
+                    try:
+                        rehost.delete_rehost(hashcode)
+                    except Exception as e:
+                        logging.critical("Unable to delete rehosted image because: " + str(e))
+
+                    logging.info("Successfully deleted comment: " + the_id)
+
+                    message.mark_as_read()
+                else:
+                    logging.debug("Illegitmate delete request by " + message.author.name + " at " + comment.id)
+                    message.mark_as_read()
+            except Exception as e:
+                logging.critical("Unable to delete because: " + str(e))
+
+
     for submission in r.get_domain_listing('instagram.com', sort='new',limit=25):
-            if len(re.findall('http[s]?://instagram.com/p/\S+|http[s]?://www.instagram.com/p/\S+', str(submission.url))) > 0:
-                to_be_done.append(submission)
+        if len(re.findall('http[s]?://instagram.com/p/\S+|http[s]?://www.instagram.com/p/\S+', str(submission.url))) > 0:
+            to_be_done.append(submission)
+
     for submission in to_be_done:
         logging.info("To be processed: " + str(submission.url))
 
