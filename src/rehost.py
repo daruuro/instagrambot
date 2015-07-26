@@ -14,7 +14,7 @@ def rehost(media_url):
         elif p_info['blob_type'] == "video":
             return p_info['files'][1]['url'].encode('utf-8')
     except Exception as e:
-        return "error"
+        return e
 
 def delete_rehost(hashcode):
     r2 = r.delete('https://imgrush.com/api/%s' % hashcode)
