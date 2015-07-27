@@ -39,7 +39,7 @@ while True:
                 if message.author.name == comment_parent.author.name or message.author.name == 'drogbafan':
                     hashcode = re.findall(r'imgrush\.com\/(\S*?)\.(?:mp4|jpe)', comment.body)[0]
                     logging.debug("The hashcode id is " + hashcode)
-                    
+
                     comment.edit("Edited and deleted this comment")
                     comment.delete()
 
@@ -97,7 +97,9 @@ while True:
                     continue
 
                 try:
-                    submission.add_comment(formatted_comment % (author_full_name, author_name, author_url, post_url, post_date, caption, media_url, rehosted_url))
+                    final_comment = formatted_comment % (author_full_name, author_name, author_url, post_url, post_date, caption, media_url, rehosted_url)
+                    post = submission.add_comment(final_comment)
+                    r.get_info(thing_id="t1_"+str(post.id)).edit(final_comment.replace("__id__", str(post.id)))
                     logging.debug("Successfully submitted comment for submission: " + str(submission.id))
                 except praw.errors.APIException as e:
                     logging.critical("Comment submission for "+ str(submission.id) + " not processed because " + str(e))
